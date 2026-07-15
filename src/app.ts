@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response } from "express";
 import OpenAI from "openai";
 import CryptoJS from "crypto-js";
 import "dotenv/config";
+import { ResponseStream } from "openai/lib/responses/ResponseStream.js";
 
 const app: Express = express();
 const PORT = process.env.PORT;
@@ -9,7 +10,7 @@ const PORT = process.env.PORT;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (res: Response) => {
     res.send("/public/index.html");
 });
 
@@ -145,14 +146,20 @@ rite a 15-word review of ${title} published ${publishedYear} by ${author} in per
     }
 
     async function getRandomBook(randomWord: String) {
-        const url = `https://www.googleapis.com/books/v1/volumes?q=intitle:${await randomWord}&key=${process.env.GOOGLE_BOOKS_API}`;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=intitle:${randomWord}&key=${process.env.GOOGLE_BOOKS_API}`;
 
         try {
             const response = await fetch(url);
+
+            // Checking For Response Status
             if (!response.ok) {
                 throw new Error(`BOOKS, Response status: ${response.status}`);
             }
+
+            // Parsing Response to JSON Object
             const data = await response.json();
+
+            // Validating the JSON Object Book List Array
             if (!data.items || data.items.length === 0) return null;
             const maxIndex = data.items.length - 1;
             const randomIndex = getRandomInt(0, maxIndex);
@@ -163,8 +170,8 @@ rite a 15-word review of ${title} published ${publishedYear} by ${author} in per
             }
 
             const author = book.volumeInfo.authors
-                ? book.volumeInfo.authors[randomIndex || 0]
-                : "-";
+                ? book.volumeInfo.authors[0]
+                : "";
 
             const review = await generateReview(
                 book.volumeInfo.title,
@@ -186,7 +193,7 @@ rite a 15-word review of ${title} published ${publishedYear} by ${author} in per
                 category: "fiction",
                 author: book.volumeInfo.authors
                     ? book.volumeInfo.authors[0]
-                    : "Unknown Author",
+                    : "John Smith",
                 publisher: book.volumeInfo.publisher
                     ? book.volumeInfo.publisher
                     : "Unknown Publisher",
@@ -200,20 +207,37 @@ rite a 15-word review of ${title} published ${publishedYear} by ${author} in per
                 process.env.SECRET_KEY || "",
             ).toString();
 
-            payload.provider = provider;
-            payload.rating = 5;
-            payload.bookType = "physcial";
-            ((payload.publishedYear = formatPublishedDate(
-                book.volumeInfo.publishedDate,
-            )),
-                (payload.reviewIsVideo = false));
-            payload.isbn = book.volumeInfo.industryIdentifiers
-                ? book.volumeInfo.industryIdentifiers[0].identifier
-                : "-";
-            payload.noOfPage = book.volumeInfo.pageCount
-                ? book.volumeInfo.pageCount
-                : 25;
-            return payload;
+            return {
+                data: {
+                    user: Number(req.body.userid),
+                    type: "book",
+                    date: formatDate(Date.now()),
+                    title: book.volumeInfo.title,
+                    bookType: "physical",
+                    category: "fiction",
+                    noOfPage: book.volumeInfo.pageCount
+                        ? book.volumeInfo.pageCount
+                        : 25,
+                    isbn: book.volumeInfo.industryIdentifiers
+                        ? book.volumeInfo.industryIdentifiers[0].identifier
+                        : "-",
+                    author: book.volumeInfo.authors
+                        ? book.volumeInfo.authors[0]
+                        : "John Smith",
+                    publisher: book.volumeInfo.publisher
+                        ? book.volumeInfo.publisher
+                        : "Unknown Publisher",
+                    publishedYear: formatPublishedDate(
+                        book.volumeInfo.publishedDate,
+                    ),
+                    language: "en",
+                    summary: summary,
+                    review: review,
+                    rating: 5,
+                    reviewIsVideo: false,
+                    provider: provider,
+                },
+            };
         } catch (error: unknown) {
             if (error instanceof Error) {
                 return `BOOK: ${error.message}`;
@@ -239,19 +263,19 @@ rite a 15-word review of ${title} published ${publishedYear} by ${author} in per
             Cookie: req.body.cookies,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: randomBook }, null, 2),
+        body: JSON.stringify(randomBook),
     };
 
     try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+            console.log("Something Went Wrong When Submitting");
+        }
         const data = await response.json();
-        console.log(data);
+        console.log("Submitted Successfuly!");
     } catch (error) {
         console.error(error);
     }
-
-    console.log(randomWord);
-    console.log(randomBook);
 
     res.send({
         token: req.body.token,
