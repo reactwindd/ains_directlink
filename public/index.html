@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AINS | DIrectLink</title>
+    </head>
+    <body>
+        <form action="/api/submit" method="post">
+            <fieldset>
+                <label for="userid">User ID</label>
+                <input id="userid" name="userid" />
+                <label for="token">Bearer Token</label>
+                <textarea id="token" name="token"></textarea>
+                <label for="cookies">Cookies</label>
+                <textarea id="cookies" name="cookies"></textarea>
+                <input type="submit" />
+            </fieldset>
+        </form>
+    </body>
+</html>
+<style>
+    textarea & input {
+        display: block;
+    }
+
+    fieldset & input {
+        padding: 16;
+    }
+</style>

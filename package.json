@@ -1,0 +1,30 @@
+{
+    "name": "ains_directlink",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "node --watch --env_file=.env src/app.ts",
+        "type-check": "tsc --noEmit",
+        "build": "tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "@types/crypto-js": "^4.2.2",
+        "@types/node": "^26.1.1",
+        "nodemon": "^3.1.14",
+        "ts-node": "^10.9.2",
+        "typescript": "^7.0.2"
+    },
+    "dependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "crypto-js": "^4.2.0",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "openai": "^6.47.0"
+    }
+}
