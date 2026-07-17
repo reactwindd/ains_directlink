@@ -19,16 +19,24 @@ if (SECRET_KEY) {
 
 // Check critical environment variables
 if (!SECRET_KEY) {
-    console.warn("WARNING: SECRET_KEY is not defined in environment variables.");
+    console.warn(
+        "WARNING: SECRET_KEY is not defined in environment variables.",
+    );
 }
 if (!GOOGLE_BOOKS_API) {
-    console.warn("WARNING: GOOGLE_BOOKS_API is not defined in environment variables.");
+    console.warn(
+        "WARNING: GOOGLE_BOOKS_API is not defined in environment variables.",
+    );
 }
 if (!RANDOM_WORD_API) {
-    console.warn("WARNING: RANDOM_WORD_API is not defined in environment variables.");
+    console.warn(
+        "WARNING: RANDOM_WORD_API is not defined in environment variables.",
+    );
 }
 if (!OPENAI_API_KEY) {
-    console.warn("WARNING: OPENAI_API_KEY is not defined in environment variables.");
+    console.warn(
+        "WARNING: OPENAI_API_KEY is not defined in environment variables.",
+    );
 }
 
 export const config = {

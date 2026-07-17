@@ -2,6 +2,8 @@ import express, { type Express, type Request, type Response } from "express";
 import { config } from "./config.ts";
 import submitRouter from "./routes/submit.route.ts";
 import { errorHandler } from "./middleware/error.middleware.ts";
+import jobRouter from "./routes/job.route.ts";
+import { backgroundWorker } from "./services/queueWorker.server.ts";
 
 const app: Express = express();
 
@@ -16,10 +18,12 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api", submitRouter);
+app.use("/api", jobRouter);
 
 // Global Error Handler Middleware (must be registered after routes)
 app.use(errorHandler);
 
+backgroundWorker.start();
 // Start Server
 app.listen(config.PORT, () => {
     console.log(`Server running on port http://localhost:${config.PORT}`);

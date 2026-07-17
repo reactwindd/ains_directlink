@@ -48,3 +48,26 @@ export interface GoogleBookItem {
 export interface GoogleBooksResponse {
     items?: GoogleBookItem[];
 }
+
+export interface JobPayload {
+    token: string;
+    cookies: string;
+    totalRuns: number;
+    delaySeconds: number;
+}
+
+export interface Job {
+    id: string;
+    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+    payload: JobPayload;
+    currentRun: number;
+    runsLeft: number;
+    nextActionAt: string | null;
+    history: Array<{
+        run: number;
+        status: "SUCCESS" | "FAILED";
+        timestamp: string;
+        data?: any;
+        error?: string;
+    }>;
+}
