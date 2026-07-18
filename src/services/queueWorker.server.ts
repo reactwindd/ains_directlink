@@ -75,9 +75,6 @@ class QueueWorker {
             };
 
             try {
-                // Input Validation
-                let userid;
-
                 if (!token) {
                     runResult.error = {
                         error: "Missing required parameter: token",
@@ -98,8 +95,7 @@ class QueueWorker {
                     JSON.stringify(decodedToken, null, 2),
                 );
 
-                // Extract the user ID from the token if possible, fallback to body.userid
-                let finalUserId: number;
+                let userId: number = NaN;
                 if (
                     decodedToken &&
                     (decodedToken.id || decodedToken.userId || decodedToken.sub)
@@ -110,18 +106,22 @@ class QueueWorker {
                             decodedToken.sub,
                     );
                     if (!isNaN(extractedId)) {
-                        finalUserId = extractedId;
+                        userId = extractedId;
                         console.log(
-                            `[JWT Decoder] Extracted user ID from token: ${finalUserId}`,
+                            `[JWT Decoder] Extracted user ID from token: ${userId}`,
                         );
                     } else {
-                        finalUserId = Number(userid);
+                        runResult.error = {
+                            error: "Missing or invalid parameter: userid (could not extract from tken or body)",
+                        };
                     }
                 } else {
-                    finalUserId = Number(userid);
+                    runResult.error = {
+                        error: "Missing or invalid parameter: userid (could not extract from tken or body)",
+                    };
                 }
 
-                if (isNaN(finalUserId)) {
+                if (isNaN(userId)) {
                     runResult.error = {
                         error: "Missing or invalid parameter: userid (could not extract from token or body)",
                     };
@@ -132,7 +132,7 @@ class QueueWorker {
                 const randomWord = await getRandomWord();
 
                 // 2. Fetch a random book matching that word and generate LLM review/summary
-                const randomBook = await getRandomBook(randomWord, finalUserId);
+                const randomBook = await getRandomBook(randomWord, userId);
 
                 if (!randomBook) {
                     runResult.error = {
@@ -143,8 +143,7 @@ class QueueWorker {
 
                 // Log incoming and outgoing payloads for debugging
                 console.log(`[Request Payload] Incoming from user form:`, {
-                    userid,
-                    finalUserId,
+                    userId,
                     token: token ? `${token.substring(0, 15)}...` : "missing",
                     cookies: cookies
                         ? `${cookies.substring(0, 15)}...`
@@ -158,7 +157,7 @@ class QueueWorker {
                 // 3. Post the book record to the external AINS system
                 await submitNilamRecord(randomBook, token, cookies);
                 console.log(
-                    `[Submission] Successfully posted book "${randomBook.data.title}" for user ${finalUserId}`,
+                    `[Submission] ✅ Successfully posted book "${randomBook.data.title}" for user ${userId}`,
                 );
 
                 // 4. Return the result details to client

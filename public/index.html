@@ -56,7 +56,7 @@
                 margin-bottom: -10px;
             }
 
-            input[type="text"],
+            input,
             textarea {
                 width: 100%;
                 padding: 10px 12px;
@@ -103,7 +103,7 @@
     </head>
     <body>
         <div class="form-card">
-            <form action="/api/submit" method="post">
+            <form action="/api/jobs" method="post">
                 <fieldset>
                     <h1>AINS | DirectLink</h1>
                     <label for="token">Bearer Token</label>
@@ -112,14 +112,30 @@
                         name="token"
                         placeholder="Paste token here..."
                     ></textarea>
-
                     <label for="cookies">Cookies</label>
                     <textarea
                         id="cookies"
                         name="cookies"
                         placeholder="Paste cookies here..."
                     ></textarea>
-
+                    <label for="totalRuns">Number of Times to Run</label>
+                    <input
+                        id="totalRuns"
+                        name="totalRuns"
+                        type="number"
+                        value="30"
+                        placeholder="Run for 30 times..."
+                    />
+                    <label for="delaySeconds"
+                        >Delay Between Each Run ( Seconds )</label
+                    >
+                    <input
+                        id="delaySeconds"
+                        name="delaySeconds"
+                        type="number"
+                        value="50"
+                        placeholder="50 Seconds"
+                    />
                     <input type="submit" value="Submit" />
                 </fieldset>
             </form>
